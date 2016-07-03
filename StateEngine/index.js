@@ -55,6 +55,9 @@ StateEngine.prototype = {
             }
             return false;
         }
+    },
+    syncState : function (state) {
+        this.currentState = state;
     }
 };
 
