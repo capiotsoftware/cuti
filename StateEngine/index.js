@@ -7,7 +7,7 @@ var StateEngine = function (stateTransitionList,startState,globalCallback) {
     }
 
     stateTransitionList.forEach(el => {
-        if (el.length === 3 || el.length[2]) {
+        if (el.length === 3 || el.length === 2) {
             this.registerNewState(el[0], el[1], el.length === 3 ? el[2] : null);
         } else {
             throw new Error("Invalid State transitions provided");
