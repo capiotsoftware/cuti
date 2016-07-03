@@ -29,7 +29,7 @@ StateEngine.prototype = {
     currentState: null,
     registerNewState: function (source, target, callback) {
         var targetStates = this.stateMaster[source] ? this.stateMaster[source] : {};
-        targetStates[target] = callback ? callback : null;
+        targetStates[target] = { callback: callback ? callback : null };
         this.stateMaster[source] = targetStates;
     },
     removeState: function (source, target) {
