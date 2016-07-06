@@ -1,4 +1,5 @@
 var StateEngine = require("./StateEngine");
+var IDGenerator = require("./IDGenerator");
 var rand = function (_i) {
     var i = Math.pow(10, _i - 1);
     var j = Math.pow(10, _i) - 1;
@@ -11,5 +12,6 @@ var date = function (_dM) {
 module.exports = {
     StateEngine: StateEngine,
     rand:   rand,
-    date:   date
+    date: date,
+    getUniqueID : IDGenerator
 };
