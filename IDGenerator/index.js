@@ -14,7 +14,7 @@ var generateCandidateKey = length => {
     if (final.length < length) {
         final = add0s(length - final.length) + final;
     } else if (final.length > length) {
-        final = final.substring(0, (length - 1));
+        final = final.substring(0, length);
     }
     return final;
 
@@ -22,7 +22,7 @@ var generateCandidateKey = length => {
 
 var getUniqueID = (model, length) => {
     var candidate = generateCandidateKey(length);
-    model.findOne({ _id: candidate }).exec().then(_ => _ ? getUniqueID(model, length) : _);
+    return model.findOne({ _id: candidate }).exec().then(_ => _ ? getUniqueID(model, length) : candidate);
 };
 
 module.exports = getUniqueID;
