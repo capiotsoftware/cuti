@@ -20,7 +20,7 @@ var setDefaults = function(sequenceName,defaultValue){
     options.new = true;
     options.upsert = true;
     options.setDefaultsOnInsert = true;
-    counterModel.findByIdAndUpdate(sequenceName,{$set:{next:defaultValue}},options);
+    counterModel.create({_id:sequenceName,next:defaultValue});
 };
 var getCount = function(sequenceName,expire,callback){
     var options = {};
