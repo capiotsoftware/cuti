@@ -1,5 +1,5 @@
 var mongoose = require("mongoose");
-var url = process.env.MONGO_URL?process.env.MONGO_URL:"mongodb://localhost/storeKing";
+var url = process.env.MONGO_URL ? process.env.MONGO_URL : "mongodb://localhost/storeKing";
 mongoose.connect(url);
 
 var date = process.env.EXPIRE?process.env.EXPIRE:new Date("3000-12-31");
