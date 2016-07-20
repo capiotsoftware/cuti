@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/capiotsoftware/cuti/issues"
   },
-  "homepage": "https://github.com/capiotsoftware/cuti"
+  "homepage": "https://github.com/capiotsoftware/cuti",
+  "dependencies": {
+    "eslint": "^3.1.1"
+  }
 }
