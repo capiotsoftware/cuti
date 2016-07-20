@@ -42,8 +42,8 @@ StateEngine.prototype = {
             this.stateMaster[this.currentState][toState]) {
             var prev = this.currentState;
             this.currentState = toState;
-            if (this.stateMaster[this.currentState][toState].callback) {
-                this.stateMaster[this.currentState][toState].callback(prev, this.currentState);
+            if (this.stateMaster[prev][toState].callback) {
+                this.stateMaster[prev][toState].callback(prev, this.currentState);
             }
             if (this.masterCallback) {
                 this.masterCallback(null, prev, this.currentState);
