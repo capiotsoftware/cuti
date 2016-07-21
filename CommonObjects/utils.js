@@ -28,7 +28,6 @@ var applyDefToDoc = (doc, defList) => {
             doc.definitions[el] = def[el];
         }
     }));
-    console.log("DOCK DOC",doc);
     return doc;
 };
 
