@@ -1,0 +1,43 @@
+var fs = require("fs");
+
+var statFile = file =>
+    new Promise((res, rej) => fs.stat(file, (err, stats) => err ? rej(err) : res(stats)));
+
+var readdirectory = path =>
+    new Promise((res, rej) => fs.readdir(path, (err, files) => err ? rej(err) : res(files)));
+
+var checkandReadDir = path =>
+    statFile(path).then(res => res.isDirectory())
+        .then(res => {
+            if (res) /* then */ return readdirectory(path);
+            else throw new Error("Path is not a directory " + path);
+        });
+
+var openFile = file =>
+    new Promise((res, rej) => fs.open(file, "r", (err, fd) => err ? rej(err) : res(fd)));    
+
+var readFile = file =>
+    new Promise((res, rej) => fs.readFile(file, "utf8", (err, data) => err || !data ? rej(err) : res(data.toString("utf-8"))));
+
+var writeFile = (file, doc) =>
+    new Promise((res, rej) => fs.writeFile(file, doc, (err) => err ? rej(err) : res(true)));    
+    
+var applyDefToDoc = (doc, defList) => {
+    defList.forEach((def) => Object.keys(def).forEach(el => {
+        if (doc.definitions && typeof doc.definitions[el] !== "undefined") {
+            doc.definitions[el] = def[el];
+        }
+    }));
+    console.log("DOCK DOC",doc);
+    return doc;
+};
+
+module.exports = {
+    statFile: statFile,
+    readdirectory: readdirectory,
+    checkandReadDir: checkandReadDir,
+    openFile: openFile,
+    readFile: readFile,
+    writeFile: writeFile,
+    applyDefToDoc : applyDefToDoc
+};
