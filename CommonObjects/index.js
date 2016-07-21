@@ -11,7 +11,7 @@ function CommonObjects() {
                     .then(content => content.map(yaml.load));
             } else throw new Error("Unknown Error in initialize parse data");
         }).then(el => { this.definitions = el; return true; });
-};
+}
 
 CommonObjects.prototype = {
     applyDefinitions : function (yamlFile) {
