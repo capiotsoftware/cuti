@@ -31,6 +31,31 @@ var applyDefToDoc = (doc, defList) => {
     return doc;
 };
 
+var generateExtractor = function (filterEl) {
+    return function (el) {
+        var retStruct = {};
+        Object.keys(el).forEach(key => retStruct[key] = el[key][filterEl]);
+        return retStruct;
+    }.bind(this);
+};
+
+var recursiveSweep = function (appDefinition, definitions, definitionKeys) {
+    Object.keys(appDefinition).forEach(key => {
+        var idx = definitionKeys.find(val => "$CommonObjects/" + val  === key);
+        if (idx) {
+            appDefinition[idx] = definitions[idx];
+            delete appDefinition["$CommonObjects/" + idx];
+        }
+        else if (typeof appDefinition[key] === "object") {
+            appDefinition[key] == recursiveSweep(appDefinition[key], definitions, definitionKeys);
+        }
+    });
+    return appDefinition;
+};
+ 
+var sweepAndReplace = (appDefinition, definitions) =>
+    recursiveSweep(appDefinition, definitions, Object.keys(definitions));
+
 module.exports = {
     statFile: statFile,
     readdirectory: readdirectory,
@@ -38,5 +63,7 @@ module.exports = {
     openFile: openFile,
     readFile: readFile,
     writeFile: writeFile,
-    applyDefToDoc : applyDefToDoc
+    applyDefToDoc: applyDefToDoc,
+    generateExtractor: generateExtractor,
+    sweepAndReplace: sweepAndReplace
 };
