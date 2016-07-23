@@ -1,28 +1,19 @@
 var yaml = require("js-yaml");
 var fsUtils = require("./utils");
+var fs = require("fs");
 
 function CommonObjects() {
     this.swaggerDefinitions = [];
     this.mongooseDefinitions = {};
     //this.loadDefinitions();
-    fsUtils.checkandReadDir(__dirname + "/definitions")
-        .then(files => {
-            if (files) {
-                // return Promise.all(files.map(el => __dirname + "/definitions/" + el).map(fsUtils.readFile))
-                //     .then(fsUtils.promiseLogger)
-                //     .then(content => content.map(require))
-                //     .catch(err => console.log(err));
-                return files.map(el => __dirname + "/definitions/" + el)
-                    .map(require).map(fsUtils.promiseLogger);
-            } else throw new Error("Unknown Error in initialize parse data");
-        }).then(el => {
-            this.swaggerDefinitions = el.map(fsUtils.generateExtractor("swagger"));
-            el.map(fsUtils.generateExtractor("mongoose")).forEach(data =>
+    var files = fs.readdirSync(__dirname + "/definitions");
+    if (files) {
+        var defs = files.map(el => __dirname + "/definitions/" + el)
+            .map(require);
+        this.swaggerDefinitions = defs.map(fsUtils.generateExtractor("swagger"));
+        defs.map(fsUtils.generateExtractor("mongoose")).forEach(data =>
                 Object.keys(data).forEach(key => this.mongooseDefinitions[key] = data[key]));
-            return true;
-        }).catch(err => {
-            throw err;
-        });
+    }
 }
 
 CommonObjects.prototype = {
@@ -32,7 +23,7 @@ CommonObjects.prototype = {
             else throw new Error("Could not stat the file / Or the provided path is not a file");
         }).then(() => fsUtils.readFile(yamlFile))
             .then(yaml.load)
-            .then(doc => fsUtils.applyDefToDoc(doc, this.definitions))
+            .then(doc => fsUtils.applyDefToDoc(doc, this.swaggerDefinitions))
             .then(yaml.dump)
             .then(doc => fsUtils.writeFile(yamlFile, doc));
     },
