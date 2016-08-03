@@ -1,5 +1,0 @@
-address:
-    properties:
-        line1: {type: string}
-        line2: {type: string}
-        landmark: {type: string}
