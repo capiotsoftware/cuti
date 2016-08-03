@@ -1,5 +1,6 @@
 var StateEngine = require("./StateEngine");
 var rand = require("./rand");
+var validation = require("./Validation");
 var date = require("./date");
 var IDGenerator = require("./IDGenerator");
 var counter = require("./counter");
@@ -12,5 +13,6 @@ module.exports = {
     getUniqueID : IDGenerator,
     counter: counter,
     CommonObjects:CommonObjects,
-    logger : logger
+    logger : logger,
+    validation : validation
 };
