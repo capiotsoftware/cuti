@@ -47,7 +47,8 @@ var recursiveSweep = function (appDefinition, definitions, definitionKeys) {
             delete appDefinition["$CommonObjects/" + idx];
         }
         else if (typeof appDefinition[key] === "object") {
-            appDefinition[key] == recursiveSweep(appDefinition[key], definitions, definitionKeys);
+            if(appDefinition[key])
+                appDefinition[key] == recursiveSweep(appDefinition[key], definitions, definitionKeys);
         }
     });
     return appDefinition;
