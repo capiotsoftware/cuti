@@ -53,7 +53,7 @@ var validationPost = (req,res,next) =>{
                     return (!value)?prev:false;
                 }
                 else if(curr[key]!=true){
-                    return (curr[key].min<=value && curr[key].max>=value)?prev:false    
+                    return (curr[key].min<=value && curr[key].max>=value)?prev:false;    
                 }
                 else if(curr[key].type == "%"){
                     return prev;
@@ -98,7 +98,7 @@ var getDiff = function(el,oldObj,newObj){
         }
         else{
             diffObj[el] = {};
-            diffObj[el]["__diff"] = "+"
+            diffObj[el]["__diff"] = "+";
             diffObj[el]["r"] = newObj[el];
         }
     }    
@@ -135,6 +135,9 @@ var validationPut = (req,res,next) =>{
     http.request(options,function(response){
         response.on("data",function(permissionData){
             crudder.model.find({_id:req.body._id},function(err,doc){
+                if(doc.length!=1){
+                    return next(new Error("Invalid object"));
+                }
                 var result = diff(doc[0].toObject(),req.body);            
                 permissionData = permissionData.toString("utf8");
                 permissionData = JSON.parse(permissionData);
