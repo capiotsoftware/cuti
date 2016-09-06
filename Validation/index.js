@@ -22,7 +22,6 @@ var validationGet = (req,res,next) => {
                 data = JSON.parse(data);
                 req.user = data.user;
                 data = data.permission;
-                console.log(data);
                 var newSelect = select?_.intersection(select.split(","),data):data;
                 req.query.select = newSelect.length>0?newSelect.join():"_id";
                 next();    
@@ -159,11 +158,9 @@ var validationPut = (req,res,next) =>{
                     permissionData = JSON.parse(permissionData);
                     req.user = permissionData.user;
                     permissionData = permissionData.permission;
-                    console.log(permissionData,"permissionData");
                     var flag = permissionData.reduce((prev,curr) =>{
                         var segment = {};
                         var key = Object.keys(curr)[0];
-                        console.log("crash happens here",key,curr);
                         segment[key] = getValue(result,key);
                         if(!segment[key]){
                             return prev;
