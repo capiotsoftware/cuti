@@ -12,7 +12,7 @@ var validationGet = (req,res,next) => {
     if(req.headers["validation-url"]){
         options.hostname = req.headers["validation-url"].split("//")[1].split(":")[0];
         options.port = req.headers["validation-url"].split(":")[2].split("/")[0];
-        options.path = "/permissionsGet";
+        options.path = "/user/v1/permissionsGet";
         options.method = "POST";
         options.headers = {};
         options.headers = req.headers;
@@ -46,7 +46,7 @@ var validationPost = (req,res,next) =>{
     if(req.headers["validation-url"]){
         options.hostname = req.headers["validation-url"].split("//")[1].split(":")[0];
         options.port = req.headers["validation-url"].split(":")[2].split("/")[0];
-        options.path = "/permissionsPost";
+        options.path = "/user/v1/permissionsPost";
         options.method = "POST";
         options.headers = req.headers;
         options.headers["content-length"] = 0;
@@ -141,7 +141,7 @@ var validationPut = (req,res,next) =>{
         var options = {};
         options.hostname = req.headers["validation-url"].split("//")[1].split(":")[0];
         options.port = req.headers["validation-url"].split(":")[2].split("/")[0];
-        options.path = "/permissionsPost";
+        options.path = "/user/v1/permissionsPost";
         options.method = "POST";
         options.headers = {};
         options.headers = req.headers;
