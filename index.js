@@ -7,6 +7,7 @@ var counter = require("./counter");
 var logger = require("./logger");
 var CommonObjects = require("./CommonObjects");
 var moveToES = require("./moveToES");
+var request = require("./Request");
 module.exports = {
     StateEngine : StateEngine,
     rand :   rand,
@@ -16,5 +17,6 @@ module.exports = {
     CommonObjects:CommonObjects,
     logger : logger,
     validation : validation,
-    moveToES : moveToES
+    moveToES : moveToES,
+    request : request 
 };
