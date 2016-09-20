@@ -2,9 +2,11 @@ var http = require("http");
 var _ = require("lodash");
 var masterName = null;
 var crudder = null;
-var init = (_m,_crudder) => {
+var puttu = null;
+var init = (_m,_crudder,_puttu) => {
     masterName = _m;
-    crudder = _crudder;        
+    crudder = _crudder;       
+    puttu = _puttu; 
 };
 var validationGet = (req,res,next) => {
     var select = req.query.select;
@@ -27,6 +29,9 @@ var validationGet = (req,res,next) => {
                 next();    
             });
         }).end();
+    }
+    else if(req.headers.magicKey){
+        puttu.getMagicKey(masterName).then(key=> key==req.headers.magicKey?next():res.status(401).json("unauthorized"));
     }
     else{
         req.query.select = "_id";
@@ -64,7 +69,7 @@ var validationPost = (req,res,next) =>{
                         return (!value)?prev:false;
                     }
                     else if(curr[key]!=true){
-                        return (curr[key].min<=value && curr[key].max>=value)?prev:false    
+                        return (curr[key].min<=value && curr[key].max>=value)?prev:false;    
                     }
                     else if(curr[key].type == "%"){
                         return prev;
@@ -76,6 +81,9 @@ var validationPost = (req,res,next) =>{
                 flag?next():next(new Error("Create permissions denied")); 
             });
         }).end();
+    }
+    else if(req.headers.magicKey){
+        puttu.getMagicKey(masterName).then(key=> key==req.headers.magicKey?next():res.status(401).json("unauthorized"));
     }
     else{
         res.status(500).json("Validation Url Required");
@@ -89,7 +97,7 @@ var getDiff = function(el,oldObj,newObj){
         }
         else if(oldObj[el] != newObj[el]){
             diffObj[el] = {};
-            diffObj[el]["__diff"] = "!"
+            diffObj[el]["__diff"] = "!";
             diffObj[el]["l"] = oldObj[el];
             diffObj[el]["r"] = newObj[el];
         }
@@ -103,7 +111,7 @@ var getDiff = function(el,oldObj,newObj){
         }
         else{
             diffObj[el] = {};
-            diffObj[el]["__diff"] = "-"
+            diffObj[el]["__diff"] = "-";
             diffObj[el]["l"] = oldObj[el];
         }
     }
@@ -113,7 +121,7 @@ var getDiff = function(el,oldObj,newObj){
         }
         else{
             diffObj[el] = {};
-            diffObj[el]["__diff"] = "+"
+            diffObj[el]["__diff"] = "+";
             diffObj[el]["r"] = newObj[el];
         }
     }    
@@ -182,7 +190,7 @@ var validationPut = (req,res,next) =>{
                                 return (segment[key].r>=lowerLim && segment[key].r<=upperLim)?prev:false;
                             }
                             else{
-                                return (curr[key].min<=segment[key].r && curr[key].max>=segment[key].r)?prev:false    
+                                return (curr[key].min<=segment[key].r && curr[key].max>=segment[key].r)?prev:false;    
                             }
                         }
                         else{
@@ -193,6 +201,9 @@ var validationPut = (req,res,next) =>{
                 });
             });
         }).end();
+    }
+    else if(req.headers.magicKey){
+        puttu.getMagicKey(masterName).then(key=> key==req.headers.magicKey?next():res.status(401).json("unauthorized"));
     }
     else{
         res.status(500).json("Validation Url Required");    
