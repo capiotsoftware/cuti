@@ -30,8 +30,8 @@ var validationGet = (req,res,next) => {
             });
         }).end();
     }
-    else if(req.headers.magicKey){
-        puttu.getMagicKey(masterName).then(key=> key==req.headers.magicKey?next():res.status(401).json("unauthorized"));
+    else if(req.headers.magickey){
+        puttu.getMagicKey(masterName).then(key=> key==req.headers.magickey?next():res.status(401).json("unauthorized"));
     }
     else{
         req.query.select = "_id";
@@ -82,8 +82,8 @@ var validationPost = (req,res,next) =>{
             });
         }).end();
     }
-    else if(req.headers.magicKey){
-        puttu.getMagicKey(masterName).then(key=> key==req.headers.magicKey?next():res.status(401).json("unauthorized"));
+    else if(req.headers.magickey){
+        puttu.getMagicKey(masterName).then(key=> key==req.headers.magickey?next():res.status(401).json("unauthorized"));
     }
     else{
         res.status(500).json("Validation Url Required");
@@ -202,8 +202,8 @@ var validationPut = (req,res,next) =>{
             });
         }).end();
     }
-    else if(req.headers.magicKey){
-        puttu.getMagicKey(masterName).then(key=> key==req.headers.magicKey?next():res.status(401).json("unauthorized"));
+    else if(req.headers.magickey){
+        puttu.getMagicKey(masterName).then(key=> key==req.headers.magickey?next():res.status(401).json("unauthorized"));
     }
     else{
         res.status(500).json("Validation Url Required");    
