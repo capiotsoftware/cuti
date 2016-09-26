@@ -3,10 +3,12 @@ var _ = require("lodash");
 var masterName = null;
 var crudder = null;
 var puttu = null;
-var init = (_m,_crudder,_puttu) => {
+var fieldName = null;
+var init = (_m,_crudder,_puttu,_fieldName) => {
     masterName = _m;
     crudder = _crudder;       
     puttu = _puttu; 
+    fieldName = _fieldName;
 };
 var validationGet = (req,res,next) => {
     var select = req.query.select;
@@ -17,13 +19,19 @@ var validationGet = (req,res,next) => {
         options.path = "/user/v1/permissionsGet";
         options.method = "POST";
         options.headers = {};
-        options.headers = req.headers;
+        options.headers = {};
+        options.headers["authorization"] = req.headers["authorization"];
         options.headers["mastername"] = masterName;
         http.request(options,function(res){
             res.on("data",(data) => {
                 data = JSON.parse(data);
                 req.user = data.user;
+                var enumPerms = data.enumPerms;
                 data = data.permission;
+                if(enumPerms){
+                    req.query.filter = {};
+                    req.query.filter[fieldName] = {"$in":enumPerms[fieldName]};
+                }
                 var newSelect = select?_.intersection(select.split(","),data):data;
                 req.query.select = newSelect.length>0?newSelect.join():"_id";
                 next();    
@@ -37,6 +45,43 @@ var validationGet = (req,res,next) => {
         req.query.select = "_id";
         next();
     } 
+};
+var onlyTrustedAccess = (req,res,next) => {
+    if(req.headers.magickey){
+        puttu.getMagicKey(masterName).then(key=> key==req.headers.magickey?next():res.status(401).json("unauthorized"));
+    }
+    else{
+        res.status(400).json({message:"method can only be accessible by trusted services"});
+    }
+};
+var stateTransition = (req,res,next) => {
+    if(req.headers["validation-url"]){
+        var options = {};
+        options.hostname = req.headers["validation-url"].split("//")[1].split(":")[0];
+        options.port = req.headers["validation-url"].split(":")[2].split("/")[0];
+        options.path = "/user/v1/permissionsPost";
+        options.method = "POST";
+        options.headers = req.headers;
+        options.headers["content-length"] = 0;
+        options.headers["mastername"] = masterName;
+        http.request(options,function(result){
+            result.on("data",(permissionData) => {
+                permissionData = permissionData.toString("utf8");
+                permissionData = JSON.parse(permissionData);
+                req.user = permissionData.user;
+                permissionData = permissionData.permission;
+                var flag = permissionData.reduce((prev,curr) =>{
+                    var key = Object.keys(curr)[0];
+                    var value = getValue(req.body,key);
+                    return key==fieldName?curr[key].indexOf(value)>-1?prev:false:prev;
+                },true); 
+                flag?next():next(new Error("Create permissions denied")); 
+            });
+        }).end();
+    }
+    else{
+        res.status(400).json({message:"Validation URL required"});
+    }
 };
 var getListOfVarriables = (obj) =>{
     var list = [];
@@ -213,3 +258,5 @@ module.exports.validationGet = validationGet;
 module.exports.validationPost = validationPost;
 module.exports.validationPut = validationPut;
 module.exports.init = init;
+module.exports.stateTransition = stateTransition;
+module.exports.onlyTrustedAccess = onlyTrustedAccess;
