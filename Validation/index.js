@@ -23,19 +23,24 @@ var validationGet = (req,res,next) => {
         options.headers["authorization"] = req.headers["authorization"];
         options.headers["mastername"] = masterName;
         http.request(options,function(res){
-            res.on("data",(data) => {
-                data = JSON.parse(data);
-                req.user = data.user;
-                var enumPerms = data.enumPerms;
-                data = data.permission;
-                if(enumPerms){
-                    req.query.filter = {};
-                    req.query.filter[fieldName] = {"$in":enumPerms[fieldName]};
-                }
-                var newSelect = select?_.intersection(select.split(","),data):data;
-                req.query.select = newSelect.length>0?newSelect.join():"_id";
-                next();    
-            });
+            if(res.statusCode!=401){
+                res.on("data",(data) => {
+                    data = JSON.parse(data);
+                    req.user = data.user;
+                    var enumPerms = data.enumPerms;
+                    data = data.permission;
+                    if(enumPerms){
+                        req.query.filter = {};
+                        req.query.filter[fieldName] = {"$in":enumPerms[fieldName]};
+                    }
+                    var newSelect = select?_.intersection(select.split(","),data):data;
+                    req.query.select = newSelect.length>0?newSelect.join():"_id";
+                    next();    
+                });
+            }
+            else{
+                next(new Error("unauthorized"));
+            }
         }).end();
     }
     else if(req.headers.magickey){
@@ -64,18 +69,23 @@ var stateTransition = (req,res,next) => {
         options.headers["content-length"] = 0;
         options.headers["mastername"] = masterName;
         http.request(options,function(result){
-            result.on("data",(permissionData) => {
-                permissionData = permissionData.toString("utf8");
-                permissionData = JSON.parse(permissionData);
-                req.user = permissionData.user;
-                permissionData = permissionData.permission;
-                var flag = permissionData.reduce((prev,curr) =>{
-                    var key = Object.keys(curr)[0];
-                    var value = getValue(req.body,key);
-                    return key==fieldName?curr[key].indexOf(value)>-1?prev:false:prev;
-                },true); 
-                flag?next():next(new Error("Create permissions denied")); 
-            });
+            if(result.statusCode!=401){
+                result.on("data",(permissionData) => {
+                    permissionData = permissionData.toString("utf8");
+                    permissionData = JSON.parse(permissionData);
+                    req.user = permissionData.user;
+                    permissionData = permissionData.permission;
+                    var flag = permissionData.reduce((prev,curr) =>{
+                        var key = Object.keys(curr)[0];
+                        var value = getValue(req.body,key);
+                        return key==fieldName?curr[key].indexOf(value)>-1?prev:false:prev;
+                    },true); 
+                    flag?next():next(new Error("Create permissions denied")); 
+                });
+            }
+            else{
+                next(new Error("unauthorized"));
+            }
         }).end();
     }
     else{
@@ -101,29 +111,34 @@ var validationPost = (req,res,next) =>{
         options.headers["content-length"] = 0;
         options.headers["mastername"] = masterName;
         http.request(options,function(result){
-            result.on("data",(permissionData) => {
-                permissionData = permissionData.toString("utf8");
-                permissionData = JSON.parse(permissionData);
-                req.user = permissionData.user;
-                permissionData = permissionData.permission;
-                var flag = permissionData.reduce((prev,curr) =>{
-                    var key = Object.keys(curr)[0];
-                    var value = getValue(req.body,key);
-                    if(curr[key] == false){
-                        return (!value)?prev:false;
-                    }
-                    else if(curr[key]!=true){
-                        return (curr[key].min<=value && curr[key].max>=value)?prev:false;    
-                    }
-                    else if(curr[key].type == "%"){
-                        return prev;
-                    }
-                    else{
-                        return prev;
-                    }
-                },true); 
-                flag?next():next(new Error("Create permissions denied")); 
-            });
+            if(result.statusCode != 401){
+                result.on("data",(permissionData) => {
+                    permissionData = permissionData.toString("utf8");
+                    permissionData = JSON.parse(permissionData);
+                    req.user = permissionData.user;
+                    permissionData = permissionData.permission;
+                    var flag = permissionData.reduce((prev,curr) =>{
+                        var key = Object.keys(curr)[0];
+                        var value = getValue(req.body,key);
+                        if(curr[key] == false){
+                            return (!value)?prev:false;
+                        }
+                        else if(curr[key]!=true){
+                            return (curr[key].min<=value && curr[key].max>=value)?prev:false;    
+                        }
+                        else if(curr[key].type == "%"){
+                            return prev;
+                        }
+                        else{
+                            return prev;
+                        }
+                    },true); 
+                    flag?next():next(new Error("Create permissions denied")); 
+                });
+            }
+            else{
+                next(new Error("unauthorized"));
+            }
         }).end();
     }
     else if(req.headers.magickey){
@@ -202,50 +217,55 @@ var validationPut = (req,res,next) =>{
         options.headers["content-length"] = 0;
         options.headers["mastername"] = masterName;
         http.request(options,function(response){
-            response.on("data",function(permissionData){
-                crudder.model.find({_id:req.body._id},function(err,doc){
-                    if(doc.length!=1){
-                        return next(new Error("Invalid object"));
-                    }
-                    var result = diff(doc[0].toObject(),req.body);            
-                    permissionData = permissionData.toString("utf8");
-                    permissionData = JSON.parse(permissionData);
-                    req.user = permissionData.user;
-                    permissionData = permissionData.permission;
-                    var flag = permissionData.reduce((prev,curr) =>{
-                        var segment = {};
-                        var key = Object.keys(curr)[0];
-                        segment[key] = getValue(result,key);
-                        if(!segment[key]){
-                            return prev;
+            if(response.statusCode!=401){
+                response.on("data",function(permissionData){
+                    crudder.model.find({_id:req.body._id},function(err,doc){
+                        if(doc.length!=1){
+                            return next(new Error("Invalid object"));
                         }
-                        else if(!segment[key].r){
-                            return prev;
-                        }
-                        else if(curr[key] == false){
-                            return (!segment[key].r)?prev:false;
-                        }
-                        else if(curr[key]!=true){
-                            if(!segment[key].r){
+                        var result = diff(doc[0].toObject(),req.body);            
+                        permissionData = permissionData.toString("utf8");
+                        permissionData = JSON.parse(permissionData);
+                        req.user = permissionData.user;
+                        permissionData = permissionData.permission;
+                        var flag = permissionData.reduce((prev,curr) =>{
+                            var segment = {};
+                            var key = Object.keys(curr)[0];
+                            segment[key] = getValue(result,key);
+                            if(!segment[key]){
                                 return prev;
                             }
-                            else if(curr[key].type == "%"){
-                                var val = segment[key].l;
-                                var upperLim = (val+(val*curr[key].max)/100);
-                                var lowerLim = (val+(val*curr[key].min)/100); 
-                                return (segment[key].r>=lowerLim && segment[key].r<=upperLim)?prev:false;
+                            else if(!segment[key].r){
+                                return prev;
+                            }
+                            else if(curr[key] == false){
+                                return (!segment[key].r)?prev:false;
+                            }
+                            else if(curr[key]!=true){
+                                if(!segment[key].r){
+                                    return prev;
+                                }
+                                else if(curr[key].type == "%"){
+                                    var val = segment[key].l;
+                                    var upperLim = (val+(val*curr[key].max)/100);
+                                    var lowerLim = (val+(val*curr[key].min)/100); 
+                                    return (segment[key].r>=lowerLim && segment[key].r<=upperLim)?prev:false;
+                                }
+                                else{
+                                    return (curr[key].min<=segment[key].r && curr[key].max>=segment[key].r)?prev:false;    
+                                }
                             }
                             else{
-                                return (curr[key].min<=segment[key].r && curr[key].max>=segment[key].r)?prev:false;    
+                                return prev;
                             }
-                        }
-                        else{
-                            return prev;
-                        }
-                    },true); 
-                    flag?next():next(new Error("Write permission to the mentioned fields denied"));    
+                        },true); 
+                        flag?next():next(new Error("Write permission to the mentioned fields denied"));    
+                    });
                 });
-            });
+            }
+            else{
+                next(new Error("Permission Denied"));
+            }
         }).end();
     }
     else if(req.headers.magickey){
@@ -269,60 +289,65 @@ var stateValidationPut = (req,res,next) =>{
         options.headers["content-length"] = 0;
         options.headers["mastername"] = masterName;
         http.request(options,function(response){
-            response.on("data",function(permissionData){
-                crudder.model.find({_id:req.body._id},function(err,doc){
-                    if(doc.length!=1){
-                        return next(new Error("Invalid object"));
-                    }
-                    var result = diff(doc[0].toObject(),req.body);            
-                    permissionData = permissionData.toString("utf8");
-                    permissionData = JSON.parse(permissionData);
-                    req.user = permissionData.user;
-                    permissionData = permissionData.permission;
-                    var flag = permissionData.reduce((prev,curr) =>{
-                        var segment = {};
-                        var key = Object.keys(curr)[0];
-                        segment[key] = getValue(result,key);
-                        if(key == fieldName){
-                            if(segment[key].r && segment[key].r==doc[key])
-                                curr[key].indexOf(doc[key])>-1?prev:false;
-                            else if(!segment[key].r){
-                                curr[key].indexOf(segment[key].l)>-1?prev:false;
+            if(response.statusCode != 401){
+                response.on("data",function(permissionData){
+                    crudder.model.find({_id:req.body._id},function(err,doc){
+                        if(doc.length!=1){
+                            return next(new Error("Invalid object"));
+                        }
+                        var result = diff(doc[0].toObject(),req.body);            
+                        permissionData = permissionData.toString("utf8");
+                        permissionData = JSON.parse(permissionData);
+                        req.user = permissionData.user;
+                        permissionData = permissionData.permission;
+                        var flag = permissionData.reduce((prev,curr) =>{
+                            var segment = {};
+                            var key = Object.keys(curr)[0];
+                            segment[key] = getValue(result,key);
+                            if(key == fieldName){
+                                if(segment[key].r && segment[key].r==doc[key])
+                                    curr[key].indexOf(doc[key])>-1?prev:false;
+                                else if(!segment[key].r){
+                                    curr[key].indexOf(segment[key].l)>-1?prev:false;
+                                }
+                                else{
+                                    return false;
+                                }    
                             }
-                            else{
-                                return false;
-                            }    
-                        }
-                        if(!segment[key]){
-                            return prev;
-                        }
-                        else if(!segment[key].r){
-                            return prev;
-                        }
-                        else if(curr[key] == false){
-                            return (!segment[key].r)?prev:false;
-                        }
-                        else if(curr[key]!=true){
-                            if(!segment[key].r){
+                            if(!segment[key]){
                                 return prev;
                             }
-                            else if(curr[key].type == "%"){
-                                var val = segment[key].l;
-                                var upperLim = (val+(val*curr[key].max)/100);
-                                var lowerLim = (val+(val*curr[key].min)/100); 
-                                return (segment[key].r>=lowerLim && segment[key].r<=upperLim)?prev:false;
+                            else if(!segment[key].r){
+                                return prev;
+                            }
+                            else if(curr[key] == false){
+                                return (!segment[key].r)?prev:false;
+                            }
+                            else if(curr[key]!=true){
+                                if(!segment[key].r){
+                                    return prev;
+                                }
+                                else if(curr[key].type == "%"){
+                                    var val = segment[key].l;
+                                    var upperLim = (val+(val*curr[key].max)/100);
+                                    var lowerLim = (val+(val*curr[key].min)/100); 
+                                    return (segment[key].r>=lowerLim && segment[key].r<=upperLim)?prev:false;
+                                }
+                                else{
+                                    return (curr[key].min<=segment[key].r && curr[key].max>=segment[key].r)?prev:false;    
+                                }
                             }
                             else{
-                                return (curr[key].min<=segment[key].r && curr[key].max>=segment[key].r)?prev:false;    
+                                return prev;
                             }
-                        }
-                        else{
-                            return prev;
-                        }
-                    },true); 
-                    flag?next():next(new Error("Write permission to the mentioned fields denied"));    
+                        },true); 
+                        flag?next():next(new Error("Write permission to the mentioned fields denied"));    
+                    });
                 });
-            });
+            }
+            else{
+                next(new Error("unauthorized"));
+            }
         }).end();
     }
     else if(req.headers.magickey){
