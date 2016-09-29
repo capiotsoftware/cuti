@@ -33,5 +33,20 @@ var getCount = function(sequenceName,expire,callback){
     options.setDefaultsOnInsert = true;
     counterModel.findByIdAndUpdate(sequenceName,{ $inc: { next: 1 }, $set:{expiresAt:expire} }, options,callback);
 };
+function getIdGenerator(prefix,counterName){
+    return function(next){
+        var self = this;
+        if(!self._id){
+            getCount(counterName,null,function(err,doc){
+                self._id = prefix+doc.next;
+                next();
+            });
+        }
+        else{
+            next();
+        }
+    };
+}
+module.exports.getIdGenerator = getIdGenerator;
 module.exports.getCount = getCount;
 module.exports.setDefaults = setDefaults;
