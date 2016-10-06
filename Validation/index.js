@@ -39,6 +39,7 @@ var validationGet = (req,res,next) => {
                 });
             }
             else{
+                res.status(401).json({message:""});
                 next(new Error("unauthorized"));
             }
         }).end();
@@ -47,8 +48,7 @@ var validationGet = (req,res,next) => {
         puttu.getMagicKey(masterName).then(key=> key==req.headers.magickey?next():res.status(401).json("unauthorized"));
     }
     else{
-        req.query.select = "_id";
-        next();
+        next(new Error("unauthorized"));
     } 
 };
 var onlyTrustedAccess = (req,res,next) => {
@@ -123,7 +123,10 @@ var validationPost = (req,res,next) =>{
                         if(curr[key] == false){
                             return (!value)?prev:false;
                         }
-                        else if(curr[key]!=true){
+                        else if(!value){
+                            return prev;
+                        }
+                        else if(curr[key].type=="L"){
                             return (curr[key].min<=value && curr[key].max>=value)?prev:false;    
                         }
                         else if(curr[key].type == "%"){
@@ -346,6 +349,7 @@ var stateValidationPut = (req,res,next) =>{
                 });
             }
             else{
+                res.status(401).json({message:"Invalid JWT token"});
                 next(new Error("unauthorized"));
             }
         }).end();
