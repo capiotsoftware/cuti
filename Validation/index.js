@@ -22,9 +22,9 @@ var validationGet = (req,res,next) => {
         options.headers = {};
         options.headers["authorization"] = req.headers["authorization"];
         options.headers["mastername"] = masterName;
-        http.request(options,function(res){
-            if(res.statusCode!=401){
-                res.on("data",(data) => {
+        http.request(options,function(_res){
+            if(_res.statusCode!=401){
+                _res.on("data",(data) => {
                     data = JSON.parse(data);
                     req.user = data.user;
                     var enumPerms = data.enumPerms;
@@ -39,7 +39,7 @@ var validationGet = (req,res,next) => {
                 });
             }
             else{
-                res.status(401).json({message:""});
+                res.status(401).json({message:"Unauthorized access"});
                 next(new Error("unauthorized"));
             }
         }).end();
@@ -84,6 +84,7 @@ var stateTransition = (req,res,next) => {
                 });
             }
             else{
+                res.status(401).json({message:"Unauthorized access"});
                 next(new Error("unauthorized"));
             }
         }).end();
@@ -140,6 +141,7 @@ var validationPost = (req,res,next) =>{
                 });
             }
             else{
+                res.status(401).json({message:"Unauthorized access"});
                 next(new Error("unauthorized"));
             }
         }).end();
@@ -267,7 +269,8 @@ var validationPut = (req,res,next) =>{
                 });
             }
             else{
-                next(new Error("Permission Denied"));
+                res.status(401).json({message:"Unauthorized access"});
+                next(new Error("unauthorized"));
             }
         }).end();
     }
@@ -349,7 +352,7 @@ var stateValidationPut = (req,res,next) =>{
                 });
             }
             else{
-                res.status(401).json({message:"Invalid JWT token"});
+                res.status(401).json({message:"Unauthorized access"});
                 next(new Error("unauthorized"));
             }
         }).end();
