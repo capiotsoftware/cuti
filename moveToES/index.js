@@ -21,8 +21,7 @@ var init = function(_crud,_mastername,_logger,_fields){
 var moveToES = function(doc){
     if(doc.deleted){
         denormalizationMiddleWare(doc).then((_doc) => {
-            doc = _doc;
-            var obj = doc.toObject();
+            var obj = _doc;
             delete obj._id;
             var options = {};
             options.hostname = es_url.split("//")[1].split(":")[0];
@@ -43,14 +42,15 @@ var moveToES = function(doc){
     }
 };
 function denormalizationMiddleWare(doc){
+    doc = doc.toObject();
     if(fields){
         var promises = Object.keys(fields).map(el => {
             if(doc[el] && fields[el].type == "Array"){
                 return new Promise((res) => Promise.all(doc[el].map(_el => new Promise((_res,_rej) => {
-                    request.getUrlandMagickey(fields[el].master)
+                    request.getUrlandMagicKey(fields[el].master)
                     .then(options => {
                         options.path += "/"+_el;
-                        http.request(options,response => response.on("data",data => _res(JSON.parse(data.toString("utf8")))));
+                        http.request(options,response => response.on("data",data => {var obj = JSON.parse(data.toString("utf8")); obj.id = obj._id; delete obj._id;_res(obj);})).end();
                     });
                 }))).then(result => {doc[el] = result;res();}));
             }
@@ -59,7 +59,7 @@ function denormalizationMiddleWare(doc){
                     request.getUrlandMagickey(fields[el].master)
                     .then(options => {
                         options.path += "/"+doc[el];
-                        http.request(options,response => response.on("data",data => {doc[el] = JSON.parse(data.toString("utf8"));_res();}));
+                        http.request(options,response => response.on("data",data => {doc[el] = JSON.parse(data.toString("utf8")); doc[el].id = doc[el]._id; delete doc[el]._id; _res();})).end();
                     });
                 });
             }
