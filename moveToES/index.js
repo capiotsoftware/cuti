@@ -54,9 +54,18 @@ function denormalizationMiddleWare(doc){
                     });
                 }))).then(result => {doc[el] = result;res();}));
             }
-            else if(doc[el] && fields[el].type != "Array"){
+            if(doc[el] && fields[el].type == "ComplexArray"){
+                return new Promise((res) => Promise.all(doc[el].map(_el => new Promise((_res,_rej) => {
+                    request.getUrlandMagicKey(fields[el].master)
+                    .then(options => {
+                        options.path += "/"+_el[fields[el].key];
+                        http.request(options,response => response.on("data",data => {var obj = JSON.parse(data.toString("utf8")); obj.id = obj._id; delete obj._id;_res(obj);})).end();
+                    });
+                }))).then(result => {doc[el] = result;res();}));
+            }
+            else if(doc[el] && fields[el].type != "KV"){
                 return new Promise((_res) =>{
-                    request.getUrlandMagickey(fields[el].master)
+                    request.getUrlandMagicKey(fields[el].master)
                     .then(options => {
                         options.path += "/"+doc[el];
                         http.request(options,response => response.on("data",data => {doc[el] = JSON.parse(data.toString("utf8")); doc[el].id = doc[el]._id; delete doc[el]._id; _res();})).end();
