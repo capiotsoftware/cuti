@@ -28,17 +28,24 @@ var moveToES = function(doc){
             options.port = es_url.split(":")[2].split("/")[0];
             options.path = mastername+"/deleted/"+doc._id;
             options.method = "POST";
-            http.request(options,function(res){
-                if(res.statusCode == 201 || res.statusCode == 200){
-                    logger.audit(doc._id+" has been moved to Elastic");
-                    doc.remove();        
-                }
-                else{
-                    logger.audit(doc._id+" couldn't moved to Elastic");
-                    res.on("data",data => logger.error(data.toString("utf8")));
-                }    
-            }).end(JSON.stringify(obj));
-        });
+            try{
+                http.request(options,function(res){
+                    res.on("error",err => logger.error(err));
+                    if(res.statusCode == 201 || res.statusCode == 200){
+                        logger.audit(doc._id+" has been moved to Elastic");
+                        doc.remove();        
+                    }
+                    else{
+                        logger.audit(doc._id+" couldn't moved to Elastic");
+                        res.on("data",data => logger.error(data.toString("utf8")));
+
+                    }    
+                }).end(JSON.stringify(obj));
+            }
+            catch(err){
+                logger.error(err);
+            }
+        },err => console.log(err));
     }
 };
 function denormalizationMiddleWare(doc){
@@ -63,7 +70,16 @@ function denormalizationMiddleWare(doc){
                     });
                 }))).then(result => {doc[el] = result;res();}));
             }
-            else if(doc[el] && fields[el].type != "KV"){
+            else if(doc[el] && fields[el].type == "ComplexKV"){
+                return new Promise((_res) =>{
+                    request.getUrlandMagicKey(fields[el].master)
+                    .then(options => {
+                        options.path += "/"+doc[el][fields[el].key];
+                        http.request(options,response => response.on("data",data => {doc[el] = JSON.parse(data.toString("utf8")); doc[el].id = doc[el]._id; delete doc[el]._id; _res();})).end();
+                    });
+                });
+            }
+            else if(doc[el] && fields[el].type == "KV"){
                 return new Promise((_res) =>{
                     request.getUrlandMagicKey(fields[el].master)
                     .then(options => {
