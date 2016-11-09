@@ -2,9 +2,10 @@ var http = require("http");
 var puttu = require("puttu-redis");
 function getOptions(url,method,path,magicKey){
     var options = {};
+    path = url.split("/");
     options.hostname = url.split("//")[1].split(":")[0];
     options.port = url.split(":")[2].split("/")[0];
-    options.path = path;
+    options.path = "/"+path.splice(3,path.length-3).join("/");
     options.method = method;
     options.headers = {};
     options.headers["content-type"] = "application/json";
