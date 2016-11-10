@@ -12,7 +12,8 @@ function getOptions(url,method,path,magicKey){
     options.headers["magicKey"] = magicKey?magicKey:null; 
     return options;   
 }
-function getUrlandMagicKey(masterName){
+function getUrlandMagicKey(masterName,retries){
+    if(!retries) /* then */ retries = Date.now();
     return puttu.get(masterName)
     .then(url => {
         return puttu.getMagicKey(masterName)
@@ -26,9 +27,9 @@ function getUrlandMagicKey(masterName){
             options.headers = {};
             options.headers["content-type"] = "application/json";
             options.headers["magicKey"] = magicKey?magicKey:null;
-            return options;
+            return new Promise(resolve => resolve(options));
         },err => console.error("error from prehooks internal",err));
-    },err => getUrlandMagicKey(masterName));
+    },err => Date.now()-retries<500?getUrlandMagicKey(masterName,retries):new Promise((resolve,reject) => reject(new Error(masterName+" Service down"))));
 }
 function checkIfExists(masterName,id){
     return new Promise((resolve,reject) => {
