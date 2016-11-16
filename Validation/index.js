@@ -50,6 +50,7 @@ var validationGet = (req,res,next) => {
         puttu.getMagicKey(masterName).then(key=> key==req.headers.magickey?next():res.status(401).json("unauthorized"));
     }
     else{
+        res.status(401).json({message:"Unauthorized access"});
         next(new Error("unauthorized"));
     } 
 };
