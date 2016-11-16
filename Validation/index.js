@@ -13,7 +13,7 @@ var init = (_m,_crudder,_puttu,_fieldName) => {
 var validationGet = (req,res,next) => {
     var select = req.query.select;
     var options = {};
-    if(req.headers["validation-url"]){
+    if(req.headers["validation-url"] && req.headers["authorization"]){
         options.hostname = req.headers["validation-url"].split("//")[1].split(":")[0];
         options.port = req.headers["validation-url"].split(":")[2].split("/")[0];
         options.path = "/user/v1/permissionsGet";
@@ -33,6 +33,8 @@ var validationGet = (req,res,next) => {
                         req.query.filter = {};
                         req.query.filter[fieldName] = {"$in":enumPerms[fieldName]};
                     }
+                    var notAuthorized = select?_.difference(select.split(","),data):[];
+                    res.setHeader("unAuthorized", notAuthorized.join(","));
                     var newSelect = select?_.intersection(select.split(","),data):data;
                     req.query.select = newSelect.length>0?newSelect.join():"_id";
                     next();    
