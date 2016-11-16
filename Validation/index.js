@@ -60,7 +60,7 @@ var onlyTrustedAccess = (req,res,next) => {
     }
 };
 var stateTransition = (req,res,next) => {
-    if(req.headers["validation-url"]){
+    if(req.headers["validation-url"] && req.headers["authorization"]){
         options.hostname = req.headers["validation-url"].split("//")[1].split(":")[0];
         options.port = req.headers["validation-url"].split(":")[2].split("/")[0];
         options.path = "/user/v1/permissionsPost";
@@ -103,7 +103,7 @@ var getListOfVarriables = (obj) =>{
 };
 var validationPost = (req,res,next) =>{
     var options = {};
-    if(req.headers["validation-url"]){
+    if(req.headers["validation-url"] && req.headers["authorization"]){
         options.hostname = req.headers["validation-url"].split("//")[1].split(":")[0];
         options.port = req.headers["validation-url"].split(":")[2].split("/")[0];
         options.path = "/user/v1/permissionsPost";
@@ -211,7 +211,7 @@ var getValue = function(obj,key){
 var validationPut = (req,res,next) =>{
     var url = req.params["0"].split("/");
     req.body._id = url[url.length-1];
-    if(req.headers["validation-url"]){
+    if(req.headers["validation-url"] && req.headers["authorization"]){
         var options = {};
         options.hostname = req.headers["validation-url"].split("//")[1].split(":")[0];
         options.port = req.headers["validation-url"].split(":")[2].split("/")[0];
@@ -284,7 +284,7 @@ var validationPut = (req,res,next) =>{
 var stateValidationPut = (req,res,next) =>{
     var url = req.params["0"].split("/");
     req.body._id = url[url.length-1];
-    if(req.headers["validation-url"]){
+    if(req.headers["validation-url"] && req.headers["authorization"]){
         var options = {};
         options.hostname = req.headers["validation-url"].split("//")[1].split(":")[0];
         options.port = req.headers["validation-url"].split(":")[2].split("/")[0];
