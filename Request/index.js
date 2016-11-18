@@ -40,6 +40,26 @@ function checkIfExists(masterName,id){
         },err => reject(err));
     });
 }
+function getElement(masterName, id, select){
+    select = select?"?select="+select:"";
+    return getUrlandMagicKey(masterName)
+    .then(options => {
+        options.path += "/"+id+select;
+        return new Promise((resolve,reject) => {
+            http.request(options,response=>{
+                if(response.statusCode!=200){
+                    reject(new Error(masterName+" return with statusCode "+response.statusCode));
+                }
+                else{
+                    var data = "";
+                    response.on("data", _data => data += _data.toString());
+                    response.on("end",()=> resolve(JSON.parse(data)));
+                }
+            }).end();
+        });
+    });
+}
+module.exports.getElement = getElement;
 module.exports.getOptions = getOptions;
 module.exports.getUrlandMagicKey = getUrlandMagicKey;
 module.exports.checkIfExists = checkIfExists;
