@@ -53,7 +53,7 @@ function transactionIdGenerator(){
         var date = new Date();
         date.setDate(date.getDate()+1);
         if(!self._id){
-            getCount("universalTransactionId"+date,date,function(err,doc){
+            getCount("universalTransactionId"+date.getDate(),date,function(err,doc){
                 var count = 1000000;
                 count += doc.next;
                 date.setDate(date.getDate()-1);
