@@ -66,6 +66,27 @@ function transactionIdGenerator(){
         }
     };
 }
+function transactionIdGeneratorParallel(){
+    return function(next,done){
+        var self = this;
+        var date = new Date();
+        date.setDate(date.getDate()+1);
+        if(!self._id){
+            getCount("universalTransactionId"+date.getDate(),date,function(err,doc){
+                var count = 1000000;
+                count += doc.next;
+                date.setDate(date.getDate()-1);
+                self._id = count.toString() + date.getTime();
+                done();
+            });
+        }
+        else{
+            done();
+        }
+        next();
+    };
+}
+module.exports.transactionIdGeneratorParallel = transactionIdGeneratorParallel;
 module.exports.transactionIdGenerator = transactionIdGenerator;
 module.exports.getIdGenerator = getIdGenerator;
 module.exports.getCount = getCount;
