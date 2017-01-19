@@ -1,5 +1,9 @@
 var http = require("http");
 var puttu = require("puttu-redis");
+var masterName = null;
+function init(_masterName) {
+    masterName = _masterName;
+}
 function getOptions(url,method,path,magicKey){
     var options = {};
     path = url.split("/");
@@ -25,6 +29,7 @@ function getUrlandMagicKey(masterName,retries){
             options.path = "/"+path.splice(3,path.length-3).join("/");
             options.method = "GET";
             options.headers = {};
+            options.headers["masterName"] = masterName;
             options.headers["content-type"] = "application/json";
             options.headers["magicKey"] = magicKey?magicKey:null;
             return new Promise(resolve => resolve(options));
@@ -81,3 +86,4 @@ module.exports.getElement = getElement;
 module.exports.getOptions = getOptions;
 module.exports.getUrlandMagicKey = getUrlandMagicKey;
 module.exports.checkIfExists = checkIfExists;
+module.exports.init = init;
