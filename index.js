@@ -8,7 +8,16 @@ var logger = require("./logger");
 var CommonObjects = require("./CommonObjects");
 var moveToES = require("./moveToES");
 var request = require("./Request");
+
+var masterName = null;
+
+function init(name) {
+    masterName = name;
+    request.init(masterName);
+}
+
 module.exports = {
+    init: init,
     StateEngine : StateEngine,
     rand :   rand,
     date : date,
