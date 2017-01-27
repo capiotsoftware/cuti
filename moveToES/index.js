@@ -32,11 +32,17 @@ var moveToES = function(doc){
                 http.request(options,function(res){
                     res.on("error",err => logger.error(err));
                     if(res.statusCode == 201 || res.statusCode == 200){
-                        logger.audit(doc._id+" has been moved to Elastic");
+                        var logObject = {
+                            "operation":"Move To Elastic",
+                            "user":mastername,
+                            "_id":doc._id,
+                            "timestamp":new Date()
+                        };
+                        logger.audit(JSON.stringify(logObject));
                         doc.remove();        
                     }
                     else{
-                        logger.audit(doc._id+" couldn't moved to Elastic");
+                        logger.info(doc._id+" couldn't moved to Elastic");
                         res.on("data",data => logger.error(data.toString("utf8")));
 
                     }    
