@@ -48,7 +48,7 @@ var moveToES = function(doc){
                     }    
                 })
                 .on("error", function(_d){
-                    console.error(_d);
+                    logger.error(_d);
                 })
                 .end(JSON.stringify(obj));
             }
