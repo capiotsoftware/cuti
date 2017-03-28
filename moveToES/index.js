@@ -1,7 +1,7 @@
 var crud = null;
 var mastername = null;
 var request = require("../Request");
-var es_url = process.env.ES_URL?process.env.ES_URL:"http://localhost:9200";
+var es_url = process.env.ES_URL?process.env.ES_URL:"localhost:9200";
 var http = require("http");
 var logger = null;
 var fields = null;
@@ -24,8 +24,8 @@ var moveToES = function(doc){
             var obj = _doc;
             delete obj._id;
             var options = {};
-            options.hostname = es_url.split("//")[1].split(":")[0];
-            options.port = es_url.split(":")[2].split("/")[0];
+            options.hostname = es_url.split(":")[0];
+            options.port = es_url.split(":")[1];
             options.path = mastername+"/deleted/"+doc._id;
             options.method = "POST";
             try{
