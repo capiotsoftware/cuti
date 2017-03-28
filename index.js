@@ -3,6 +3,7 @@ var rand = require("./rand");
 var validation = require("./Validation");
 var date = require("./date");
 var IDGenerator = require("./IDGenerator");
+var rbac = require("./rbac");
 var counter = require("./counter");
 var logger = require("./logger");
 var CommonObjects = require("./CommonObjects");
@@ -27,5 +28,6 @@ module.exports = {
     logger : logger,
     validation : validation,
     moveToES : moveToES,
+    rbac:   rbac,
     request : request 
 };
