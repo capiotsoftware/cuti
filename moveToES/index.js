@@ -46,7 +46,11 @@ var moveToES = function(doc){
                         res.on("data",data => logger.error(data.toString("utf8")));
 
                     }    
-                }).end(JSON.stringify(obj));
+                })
+                .on("error", function(_d){
+                    logger.error(_d);
+                })
+                .end(JSON.stringify(obj));
             }
             catch(err){
                 logger.error(err);
