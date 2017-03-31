@@ -64,7 +64,7 @@ function validateGetRequest(collectionName){
             puttu.getMagicKey("category")
             .then(key=> key==req.headers.magickey?next():res.status(401).json({message:"Unauthorized"}));
         }
-    }
+    };
 }
 
 function validatePostRequest(collectionName){
@@ -138,7 +138,7 @@ function validatePostRequest(collectionName){
             puttu.getMagicKey("category")
             .then(key=> key==req.headers.magickey?next():res.status(401).json({message:"Unauthorized"}));
         }
-    }
+    };
 }
 
 module.exports.validatePostRequest = validatePostRequest;
