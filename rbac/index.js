@@ -122,7 +122,7 @@ function validatePostRequest(collectionName, masterName){
                                     next();
                                 }
                                 else{
-                                    res.status(401).json({message:"Write permissions on certain fields is not allowed:- "+field});
+                                    res.status(400).json({message:"Write permissions on certain fields is not allowed:- "+field});
                                 }
                             }
                             catch(err){
