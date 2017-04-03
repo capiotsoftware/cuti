@@ -2,7 +2,7 @@ var http = require("http");
 var puttu = require("puttu-redis");
 var _ = require("lodash");
 var request = require("../Request");
-function validateGetRequest(collectionName){
+function validateGetRequest(collectionName, masterName){
     return function(req,res,next){
         if(req.headers["authorization"]){
             request.getUrlandMagicKey("user")
@@ -65,13 +65,13 @@ function validateGetRequest(collectionName){
                 user:"Internal",
                 franchise:"WMF0"
             };
-            puttu.getMagicKey("category")
+            puttu.getMagicKey(masterName)
             .then(key=> key==req.headers.magickey?next():res.status(401).json({message:"Unauthorized"}));
         }
     };
 }
 
-function validatePostRequest(collectionName){
+function validatePostRequest(collectionName, masterName){
     return function(req,res,next){
         if(req.headers["authorization"]){
             request.getUrlandMagicKey("user")
@@ -143,7 +143,7 @@ function validatePostRequest(collectionName){
                 user:"Internal",
                 franchise:"WMF0"
             };
-            puttu.getMagicKey("category")
+            puttu.getMagicKey(masterName)
             .then(key=> key==req.headers.magickey?next():res.status(401).json({message:"Unauthorized"}));
         }
     };
