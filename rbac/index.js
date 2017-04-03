@@ -61,6 +61,10 @@ function validateGetRequest(collectionName){
             }).catch(err => res.status(500).json(err));
         }
         else{
+            req.user = {
+                user:"Internal",
+                franchise:"WMF0"
+            };
             puttu.getMagicKey("category")
             .then(key=> key==req.headers.magickey?next():res.status(401).json({message:"Unauthorized"}));
         }
@@ -135,6 +139,10 @@ function validatePostRequest(collectionName){
             });     
         }
         else{
+            req.user = {
+                user:"Internal",
+                franchise:"WMF0"
+            };
             puttu.getMagicKey("category")
             .then(key=> key==req.headers.magickey?next():res.status(401).json({message:"Unauthorized"}));
         }
