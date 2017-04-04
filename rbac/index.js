@@ -8,9 +8,10 @@ function validateGetRequest(collectionName, masterName){
             request.getUrlandMagicKey("user")
             .then(options => {
                 options.path += "/permissionsGet";
-                options.headers = req.headers;
+                options.headers = {};
                 options.headers["content-length"] = 0;
                 options.headers["mastername"] = collectionName;
+                options.headers["authorization"] = req.headers["authorization"];
                 var httpRequest = http.request(options, response => {
                     var data = "";
                     if(response.statusCode == 200){
@@ -77,9 +78,10 @@ function validatePostRequest(collectionName, masterName){
             request.getUrlandMagicKey("user")
             .then(options => {
                 options.path += "/permissionsGet";
-                options.headers = req.headers;
+                options.headers = {};
                 options.headers["content-length"] = 0;
                 options.headers["mastername"] = collectionName;
+                options.headers["authorization"] = req.headers["authorization"];
                 var httpRequest = http.request(options, response => {
                     var data = "";
                     if(response.statusCode == 200){
