@@ -203,17 +203,17 @@ function validatePutRequest(collectionName, masterName, modelName){
                                             }
                                             return tempFlag;
                                         });
+                                        if(flag){
+                                            next();
+                                        }
+                                        else{
+                                            res.status(400).json({message:"Write permissions on certain fields is not allowed:- "+field});
+                                        }
                                     }
                                     else{
                                         res.status(404).json({message:"Document not found"});
                                     }
                                 }).catch(() => res.status(500).json({message:"Not Found"}));
-                                if(flag){
-                                    next();
-                                }
-                                else{
-                                    res.status(400).json({message:"Write permissions on certain fields is not allowed:- "+field});
-                                }
                             }
                             catch(err){
                                 res.status(500).json(err);
