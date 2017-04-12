@@ -20,6 +20,7 @@ function validateGetRequest(collectionName, masterName){
                         response.on("end", () => {
                             try {
                                 data = JSON.parse(data);
+                                req.user = data.user;
                                 var userGroups = data.user.groups;
                                 var allowedFields = [];
                                 if(req.query.select){
@@ -90,6 +91,7 @@ function validatePostRequest(collectionName, masterName){
                         response.on("end", () => {
                             try {
                                 data = JSON.parse(data);
+                                req.user = data.user;
                                 var userGroups = data.user.groups;
                                 var body = req.body;
                                 var flag = true;
@@ -169,6 +171,7 @@ function validatePutRequest(collectionName, masterName, modelName){
                         response.on("end", () => {
                             try {
                                 data = JSON.parse(data);
+                                req.user = data.user;
                                 var userGroups = data.user.groups;
                                 var body = req.body;
                                 var flag = true;
