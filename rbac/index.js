@@ -5,7 +5,10 @@ var mongoose = require("mongoose");
 var request = require("../Request");
 function validateGetRequest(collectionName, masterName){
     return function(req,res,next){
-        if(req.headers["authorization"]){
+        if(req.user){
+            next();
+        }
+        else if(req.headers["authorization"]){
             request.getUrlandMagicKey("user")
             .then(options => {
                 options.path += "/permissionsGet";
@@ -76,7 +79,10 @@ function validateGetRequest(collectionName, masterName){
 
 function validatePostRequest(collectionName, masterName){
     return function(req,res,next){
-        if(req.headers["authorization"]){
+        if(req.user){
+            next();
+        }
+        else if(req.headers["authorization"]){
             request.getUrlandMagicKey("user")
             .then(options => {
                 options.path += "/permissionsGet";
@@ -156,7 +162,10 @@ function validatePostRequest(collectionName, masterName){
 
 function validatePutRequest(collectionName, masterName, modelName){
     return function(req, res, next){
-        if(req.headers["authorization"]){
+        if(req.user){
+            next();
+        }
+        else if(req.headers["authorization"]){
             request.getUrlandMagicKey("user")
             .then(options => {
                 options.path += "/permissionsGet";
