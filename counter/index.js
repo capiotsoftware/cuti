@@ -17,11 +17,8 @@ var setDefaults = function(sequenceName,defaultValue){
     if(!defaultValue){
         defaultValue =0;
     }
-    var options = {};
-    options.new = true;
-    options.upsert = true;
-    options.setDefaultsOnInsert = true;
-    counterModel.create({_id:sequenceName,next:defaultValue});
+
+    counterModel.create({_id:sequenceName,next:defaultValue}).then(()=>{},()=>{});
 };
 var getCount = function(sequenceName,expire,callback){
     var options = {};

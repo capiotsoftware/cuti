@@ -47,10 +47,10 @@ var moveToES = function(doc){
 
                     }    
                 })
-                .on("error", function(_d){
-                    logger.error(_d);
-                })
-                .end(JSON.stringify(obj));
+                    .on("error", function(_d){
+                        logger.error(_d);
+                    })
+                    .end(JSON.stringify(obj));
             }
             catch(err){
                 logger.error(err);
@@ -65,37 +65,37 @@ function denormalizationMiddleWare(doc){
             if(doc[el] && fields[el].type == "Array"){
                 return new Promise((res) => Promise.all(doc[el].map(_el => new Promise((_res,_rej) => {
                     request.getUrlandMagicKey(fields[el].master)
-                    .then(options => {
-                        options.path += "/"+_el;
-                        http.request(options,response => response.on("data",data => {var obj = JSON.parse(data.toString("utf8")); obj.id = obj._id; delete obj._id;_res(obj);})).end();
-                    });
+                        .then(options => {
+                            options.path += "/"+_el;
+                            http.request(options,response => response.on("data",data => {var obj = JSON.parse(data.toString("utf8")); obj.id = obj._id; delete obj._id;_res(obj);})).end();
+                        });
                 }))).then(result => {doc[el] = result;res();}));
             }
             if(doc[el] && fields[el].type == "ComplexArray"){
                 return new Promise((res) => Promise.all(doc[el].map(_el => new Promise((_res,_rej) => {
                     request.getUrlandMagicKey(fields[el].master)
-                    .then(options => {
-                        options.path += "/"+_el[fields[el].key];
-                        http.request(options,response => response.on("data",data => {var obj = JSON.parse(data.toString("utf8")); obj.id = obj._id; delete obj._id;_res(obj);})).end();
-                    });
+                        .then(options => {
+                            options.path += "/"+_el[fields[el].key];
+                            http.request(options,response => response.on("data",data => {var obj = JSON.parse(data.toString("utf8")); obj.id = obj._id; delete obj._id;_res(obj);})).end();
+                        });
                 }))).then(result => {doc[el] = result;res();}));
             }
             else if(doc[el] && fields[el].type == "ComplexKV"){
                 return new Promise((_res) =>{
                     request.getUrlandMagicKey(fields[el].master)
-                    .then(options => {
-                        options.path += "/"+doc[el][fields[el].key];
-                        http.request(options,response => response.on("data",data => {doc[el] = JSON.parse(data.toString("utf8")); doc[el].id = doc[el]._id; delete doc[el]._id; _res();})).end();
-                    });
+                        .then(options => {
+                            options.path += "/"+doc[el][fields[el].key];
+                            http.request(options,response => response.on("data",data => {doc[el] = JSON.parse(data.toString("utf8")); doc[el].id = doc[el]._id; delete doc[el]._id; _res();})).end();
+                        });
                 });
             }
             else if(doc[el] && fields[el].type == "KV"){
                 return new Promise((_res) =>{
                     request.getUrlandMagicKey(fields[el].master)
-                    .then(options => {
-                        options.path += "/"+doc[el];
-                        http.request(options,response => response.on("data",data => {doc[el] = JSON.parse(data.toString("utf8")); doc[el].id = doc[el]._id; delete doc[el]._id; _res();})).end();
-                    });
+                        .then(options => {
+                            options.path += "/"+doc[el];
+                            http.request(options,response => response.on("data",data => {doc[el] = JSON.parse(data.toString("utf8")); doc[el].id = doc[el]._id; delete doc[el]._id; _res();})).end();
+                        });
                 });
             }
             else{
@@ -110,7 +110,7 @@ function denormalizationMiddleWare(doc){
 }
 var moveAll = function(req,res){
     crud.model.find({deleted:true}).exec().
-    then(docs => docs.forEach(el => moveToES(el)));
+        then(docs => docs.forEach(el => moveToES(el)));
     res.status(200).json({message: "Pushing data to Elastic"});
 };
 module.exports.moveToES = moveToES;

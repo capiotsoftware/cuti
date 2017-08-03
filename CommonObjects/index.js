@@ -12,7 +12,7 @@ function CommonObjects() {
             .map(require);
         this.swaggerDefinitions = defs.map(fsUtils.generateExtractor("swagger"));
         defs.map(fsUtils.generateExtractor("mongoose")).forEach(data =>
-                Object.keys(data).forEach(key => this.mongooseDefinitions[key] = data[key]));
+            Object.keys(data).forEach(key => this.mongooseDefinitions[key] = data[key]));
     }
 }
 

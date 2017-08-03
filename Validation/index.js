@@ -101,7 +101,7 @@ var getListOfVarriables = (obj) =>{
     Object.keys(obj).reduce((prev,curr) =>
         obj[curr].constructor.name == "Object"?
             getListOfVarriables(obj[curr]).map(el => curr+"."+el).forEach(el => list.push(el)):list.push(curr)     
-    ,null);
+        ,null);
     return list;
 };
 var validationPost = (req,res,next) =>{
