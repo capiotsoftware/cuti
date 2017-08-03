@@ -37,7 +37,13 @@ e.getUrlandMagicKey = (masterName,retries) => {
                     options.headers["masterName"] = masterName;
                     options.headers["content-type"] = "application/json";
                     options.headers["magicKey"] = magicKey?magicKey:null;
-                    return new Promise(resolve => resolve(options));
+                    return getSourceHeader(hostMasterName)
+                        .then(
+                            _headerData => {
+                                options.headers["sourceMagicKey"] = _headerData;
+                                return new Promise(resolve => resolve(options));
+                            }
+                        );
                 },err => console.error("error from prehooks internal",err));
         }, () => Date.now()-retries<500?e.getUrlandMagicKey(masterName,retries):new Promise((resolve,reject) => reject(new Error(masterName+" Service down"))));
 };
@@ -62,7 +68,7 @@ function getSourceHeader(masterName,retries){
                 .then(
                     _magicKey => new Promise(resolve => resolve(masterName + "#" + _magicKey)),
                     err => console.error("error from prehooks internal",err));
-        },() => Date.now()-retries<500?e.getSourceHeader(masterName,retries):new Promise((resolve,reject) => reject(new Error(masterName+" Service down"))));
+        },() => Date.now()-retries<500?getSourceHeader(masterName,retries):new Promise((resolve,reject) => reject(new Error(masterName+" Service down"))));
 }
 
 e.checkIfExists = (masterName,id) => {
