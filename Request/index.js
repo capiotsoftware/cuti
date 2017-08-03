@@ -42,6 +42,18 @@ e.getUrlandMagicKey = (masterName,retries) => {
         }, () => Date.now()-retries<500?e.getUrlandMagicKey(masterName,retries):new Promise((resolve,reject) => reject(new Error(masterName+" Service down"))));
 };
 
+e.validateSource = (masterName, key) => {
+    return puttu.get(masterName)
+        .then(() => {
+            return puttu.getMagicKey(masterName)
+                .then(
+                    _magicKey => new Promise((resolve, reject) => {
+                        _magicKey == key ? resolve() : reject();
+                    })
+                );
+        });
+};
+
 function getSourceHeader(masterName,retries){
     if(!retries) /* then */ retries = Date.now();
     return puttu.get(masterName)
