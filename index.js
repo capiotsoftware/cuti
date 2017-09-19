@@ -4,6 +4,7 @@ var validation = require("./Validation");
 var date = require("./date");
 var IDGenerator = require("./IDGenerator");
 var rbac = require("./rbac");
+var rbacCNK = require('./rbac-cnk/index');
 var counter = require("./counter");
 var logger = require("./logger");
 var CommonObjects = require("./CommonObjects");
@@ -29,5 +30,6 @@ module.exports = {
     validation : validation,
     moveToES : moveToES,
     rbac:   rbac,
+    rbacCNK: rbacCNK,
     request : request 
 };
