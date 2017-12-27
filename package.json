@@ -19,6 +19,7 @@
   "dependencies": {
     "eslint": "^3.1.1",
     "js-yaml": "^3.6.1",
-    "log4js": "^0.6.38"
+    "log4js": "^0.6.38",
+    "puttu-redis": "git+https://github.com/capiotsoftware/puttu-redis.git",
   }
 }
