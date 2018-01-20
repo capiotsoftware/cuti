@@ -113,22 +113,4 @@ e.getElement = (masterName, id, select) => {
         });
 };
 
-e.getServiceEntitlements = (service, franchise) => {
-    return new Promise((resolve) => {
-        e.getUrlandMagicKey("franchise")
-            .then(options => {
-                options.path += "/"+franchise;
-                options.method = "GET";
-                http.request(options,response => {
-                    var data = "";
-                    response.on("data",_data => data+= _data.toString());
-                    response.on("end",()=>{
-                        var franchise = JSON.parse(data);
-                        resolve(franchise.services[service]);
-                    });
-                }).end();
-            });
-    });
-};
-
 module.exports = e;

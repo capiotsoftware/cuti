@@ -17,9 +17,9 @@
   },
   "homepage": "https://github.com/capiotsoftware/cuti",
   "dependencies": {
-    "eslint": "^3.1.1",
-    "js-yaml": "^3.6.1",
-    "log4js": "^0.6.38",
-    "puttu-redis": "git+https://github.com/capiotsoftware/puttu-redis.git"
+    "eslint": "^4.15.0",
+    "log4js": "^2.4.1",
+    "puttu-redis": "git+https://github.com/capiotsoftware/puttu-redis.git",
+    "jsonwebtoken": "^8.1.0"
   }
 }

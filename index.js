@@ -6,9 +6,10 @@ var IDGenerator = require("./IDGenerator");
 var rbac = require("./rbac");
 var counter = require("./counter");
 var logger = require("./logger");
-var CommonObjects = require("./CommonObjects");
 var moveToES = require("./moveToES");
 var request = require("./Request");
+var authMiddleware = require("./AuthorizationMiddleware");
+var logMiddleware = require("./logMiddleware");
 
 var masterName = null;
 
@@ -24,10 +25,11 @@ module.exports = {
     date : date,
     getUniqueID : IDGenerator,
     counter: counter,
-    CommonObjects:CommonObjects,
     logger : logger,
     validation : validation,
     moveToES : moveToES,
     rbac:   rbac,
-    request : request 
+    request : request,
+	authMiddleware : authMiddleware,
+	logMiddleware: logMiddleware	
 };
