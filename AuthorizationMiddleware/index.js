@@ -6,8 +6,6 @@ function validateRequest(_req, permissions) {
             method = _req.method,
             url = _req.path;
         if (!user) return false;
-        let userInUrl = url.split("/")[url.split("/").length - 1].trim();
-        if (userInUrl === user.username) return true;
         var valid = false;
         Object.keys(permissions).forEach(key => {
             if (user.entitlements[key]) {
