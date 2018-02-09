@@ -20,6 +20,7 @@
     "eslint": "^4.15.0",
     "log4js": "^2.4.1",
     "puttu-redis": "git+https://github.com/capiotsoftware/puttu-redis.git",
-    "jsonwebtoken": "^8.1.0"
+    "jsonwebtoken": "^8.1.0",
+    "request": "^2.83.0"
   }
 }
