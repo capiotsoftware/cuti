@@ -10,16 +10,7 @@ function postRequest(url, data){
         json: true,
         body: data
     };
-    return request.post(options, function (err, res, body) {
-        if (err) {
-            logger.error(e.message);
-        } else if (!res) {
-            logger.error(url + " down");
-        } else {
-            if(res.statusCode === 200)
-                logger.info("Pushed to ES");
-        }
-    });
+    request.post(options);
 }
 
 function logToES(url){
