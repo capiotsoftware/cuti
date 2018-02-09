@@ -10,7 +10,7 @@ function postRequest(url, data){
         json: true,
         body: data
     };
-    request.post(options);
+    request.post(options, function (err, res, body) {});
 }
 
 function logToES(url){
