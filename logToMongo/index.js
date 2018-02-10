@@ -10,8 +10,10 @@ function logToMongo() {
         });
         req.on('end', function(){
             start = Date.now();
+			let reqBody = reqData && reqData.length !==0 ? JSON.parse(reqData) : null;
             mongoDB.insert({
-                reqBody: JSON.parse(reqData),
+                reqBody: reqBody,
+				method: req.method,
                 reqHeaders: req.headers,
                 timestamp: start,
                 url: req.protocol + '://' + req.get('host') + req.originalUrl
@@ -25,6 +27,7 @@ function logToMongo() {
                 url: req.protocol + '://' + req.get('host') + req.originalUrl,
                 reqBody: req.body,
                 reqHeaders: req.headers,
+				method: req.method,
                 timestamp: end,
                 resStatusCode: res.statusCode,
                 completionTime: diff
