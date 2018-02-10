@@ -10,7 +10,7 @@ var moveToES = require("./moveToES");
 var request = require("./Request");
 var authMiddleware = require("./AuthorizationMiddleware");
 var logMiddleware = require("./logMiddleware");
-var logToES = require("./logToES");
+var logToMongo = require("./logToMongo");
 
 var masterName = null;
 
@@ -33,5 +33,5 @@ module.exports = {
     request : request,
 	authMiddleware : authMiddleware,
     logMiddleware: logMiddleware,
-    logToES: logToES	
+    logToMongo: logToMongo	
 };
