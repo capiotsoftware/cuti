@@ -17,7 +17,8 @@ function logToMongo(name) {
 				method: req.method,
                 reqHeaders: req.headers,
                 timestamp: start,
-                url: req.protocol + '://' + req.get('host') + req.originalUrl
+                url: req.protocol + '://' + req.get('host') + req.originalUrl,
+                deleted: false
             });
         });
         
@@ -32,7 +33,8 @@ function logToMongo(name) {
 				method: req.method,
                 timestamp: end,
                 resStatusCode: res.statusCode,
-                completionTime: diff
+                completionTime: diff,
+                deleted: false
             });
         });
         next();
