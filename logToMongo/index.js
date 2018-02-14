@@ -9,7 +9,7 @@ function logToMongo(name) {
             reqData += chunk;
         });
         req.on('end', function(){
-            start = Date.now();
+            start = new Date();
 			let reqBody = reqData && reqData.length !==0 ? JSON.parse(reqData) : null;
             mongoDB.insert({
                 name: name,
@@ -17,22 +17,24 @@ function logToMongo(name) {
 				method: req.method,
                 reqHeaders: req.headers,
                 timestamp: start,
-                url: req.protocol + '://' + req.get('host') + req.originalUrl,
+                url: req.originalUrl,
+                source: req.connection.remoteAddress,
                 deleted: false
             });
         });
         
         res.on('finish', function () {
-            let end = Date.now();
+            let end = new Date();
             let diff = end - start;
             mongoDB.insert({
                 name: name,
-                url: req.protocol + '://' + req.get('host') + req.originalUrl,
+                url: req.originalUrl,
                 reqBody: req.body,
                 reqHeaders: req.headers,
 				method: req.method,
                 timestamp: end,
                 resStatusCode: res.statusCode,
+                source: req.connection.remoteAddress,
                 completionTime: diff,
                 deleted: false
             });
