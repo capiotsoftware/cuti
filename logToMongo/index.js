@@ -3,25 +3,7 @@ const mongoose = require('mongoose');
 function logToMongo(name) {
     let mongoDB = mongoose.connection.db.collection('logs');
     return function (req, res, next) {
-        let reqData = "";
-        let start = null;
-        req.on('data', function (chunk) {
-            reqData += chunk;
-        });
-        req.on('end', function(){
-            start = new Date();
-			let reqBody = reqData && reqData.length !==0 ? JSON.parse(reqData) : null;
-            mongoDB.insert({
-                name: name,
-                reqBody: reqBody,
-				method: req.method,
-                reqHeaders: req.headers,
-                timestamp: start,
-                url: req.originalUrl,
-                source: req.connection.remoteAddress,
-                deleted: false
-            });
-        });
+        let start = new Date();
         
         res.on('finish', function () {
             let end = new Date();
@@ -29,10 +11,12 @@ function logToMongo(name) {
             mongoDB.insert({
                 name: name,
                 url: req.originalUrl,
-                reqBody: req.body,
+                method: req.method,
                 reqHeaders: req.headers,
-				method: req.method,
-                timestamp: end,
+                reqBody: req.body,
+                reqTimestamp: start,
+                resTimestamp: end,
+                resHeaders: res.getHeaders(),
                 resStatusCode: res.statusCode,
                 source: req.connection.remoteAddress,
                 completionTime: diff,
