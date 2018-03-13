@@ -23,6 +23,7 @@ function validateRequest(_req, permissions) {
 
 function isUrlPermitted(permittedUrls, originalUrl) {
     let permitted = false;
+	if(!permittedUrls) return false;
     permittedUrls.forEach(url => {
         if (originalUrl.indexOf(url) != -1){
             permitted = true;
@@ -42,9 +43,10 @@ var getAuthorizationMiddleware = (jwtKey, permissions, permittedUrls) => {
                 user = jwt.decode(token, jwtKey);
                 if (user) {
                     _req.user = user;
-                    validateRequest(_req, permissions) ? next() : _res.status(401).json({
-                        message: "Unauthorized"
-                    });
+					next();
+                   // validateRequest(_req, permissions) ? next() : _res.status(401).json({
+                   //     message: "Unauthorized"
+                  //  });
                 } else _res.status(401).json({
                     message: "Unauthorized"
                 });
