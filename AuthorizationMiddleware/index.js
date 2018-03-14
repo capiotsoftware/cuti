@@ -1,4 +1,4 @@
-const jwt = require("jsonwebtoken");
+const request = require("request");
 
 function validateRequest(_req, permissions) {
     try {
@@ -23,36 +23,62 @@ function validateRequest(_req, permissions) {
 
 function isUrlPermitted(permittedUrls, originalUrl) {
     let permitted = false;
-	if(!permittedUrls) return false;
+    if (!permittedUrls) return false;
     permittedUrls.forEach(url => {
-        if (originalUrl.indexOf(url) != -1){
+        if (originalUrl.startsWith(url)) {
             permitted = true;
+            return;
         }
-    })
+    });
     return permitted;
 }
 
-var getAuthorizationMiddleware = (jwtKey, permissions, permittedUrls) => {
+function validateJWT(url, req) {
+    var options = {
+        url: url,
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            "TxnId": req.get('txnId'),
+            "Authorization": req.get("Authorization")
+        },
+        json: true
+    };
+    return new Promise((resolve, reject) => {
+        request.get(options, function (err, res, body) {
+            if (err) {
+                logger.error("Error requesting user Managment");
+                reject(err);
+            } else if (!res) {
+                reject(new Error("User management service Down"));
+            } else {
+                if (res.statusCode == 200) resolve(body);
+                else {
+                    reject(new Error(JSON.stringify(body)));
+                }
+            }
+        });
+    });
+}
+
+var getAuthorizationMiddleware = (validationAPI, permittedUrls) => {
     return (_req, _res, next) => {
         if (_req.method == "OPTIONS") next();
         else if (isUrlPermitted(permittedUrls, _req.originalUrl)) next();
-        else if (_req.headers["authorization"]) {
-            var token = _req.headers["authorization"].split(" ")[1];
-            var user = null;
+        else if (_req.get("authorization")) {
+            let token = _req.get("authorization").split(" ")[1];
             if (token) {
-                user = jwt.decode(token, jwtKey);
-                if (user) {
-                    _req.user = user;
-					next();
-                   // validateRequest(_req, permissions) ? next() : _res.status(401).json({
-                   //     message: "Unauthorized"
-                  //  });
-                } else _res.status(401).json({
-                    message: "Unauthorized"
-                });
-            } else _res.status(401).json({
-                message: "Unauthorized"
-            });
+                validateJWT(validationAPI, _req)
+                    .then(body => {
+                        _req.user = body;
+                        next();
+                    })
+                    .catch(err => {
+                        _res.status(401).json({
+                            message: "Unauthorized"
+                        });
+                    });
+            }
         } else {
             _res.status(401).json({
                 message: "Unauthorized"
