@@ -63,8 +63,7 @@ function getIdGenerator(prefix, counterName, suffix, padding, counter) {
                     next();
                 });
             } else if (padding) {
-                mid = rand(padding);
-                self._id = prefix + rand(length) + suffix;
+                self._id = prefix + rand(padding) + suffix;
                 next();
             }else{
 				getCount(counterName, null, function (err, doc) {
