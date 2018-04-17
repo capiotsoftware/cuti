@@ -15,21 +15,18 @@ var counterSchema = new mongoose.Schema({
 counterSchema.index({
     expiresAt: 1
 }, {
-    expireAfterSeconds: 0
-});
+        expireAfterSeconds: 0
+    });
 var counterModel = mongoose.model("counter", counterSchema);
 var setDefaults = function (sequenceName, defaultValue) {
     if (!sequenceName) {
         return;
     }
-    if (!defaultValue) {
-        defaultValue = 0;
-    }
-
+    defaultValue = defaultValue ? defaultValue - 1 : 0;
     counterModel.create({
         _id: sequenceName,
         next: defaultValue
-    }).then(() => {}, () => {});
+    }).then(() => { }, () => { });
 };
 var getCount = function (sequenceName, expire, callback) {
     var options = {};
@@ -50,7 +47,10 @@ var getCount = function (sequenceName, expire, callback) {
 };
 
 function getIdGenerator(prefix, counterName, suffix, padding, counter) {
-    if(counter) setDefaults(counterName, counter);
+    if (counter) { 
+        counter = parseInt(counter, 10);
+        setDefaults(counterName, counter);
+     }
     return function (next) {
         var self = this;
         var mid = null;
@@ -59,19 +59,24 @@ function getIdGenerator(prefix, counterName, suffix, padding, counter) {
         if (!self._id) {
             if (counter) {
                 getCount(counterName, null, function (err, doc) {
-                    self._id = prefix + doc.next + suffix;
+                    let nextNo = padding ? Math.pow(10, padding) + doc.next : doc.next;
+                    nextNo = nextNo.toString();
+                    if (padding && parseInt(nextNo.substr(0, 1)) > 1) {
+                        return next(new Error("length of _id is exceeding counter"));
+                    }
+                    self._id = padding ? prefix + nextNo.substr(1) + suffix : prefix + nextNo + suffix;
                     next();
                 });
             } else if (padding) {
                 self._id = prefix + rand(padding) + suffix;
                 next();
-            }else{
-				getCount(counterName, null, function (err, doc) {
+            } else {
+                getCount(counterName, null, function (err, doc) {
                     self._id = prefix + doc.next
                     next();
                 });
-			}
-				
+            }
+
         } else {
             next();
         }
