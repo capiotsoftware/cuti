@@ -47,7 +47,7 @@ var getCount = function (sequenceName, expire, callback) {
 };
 
 function getIdGenerator(prefix, counterName, suffix, padding, counter) {
-    if (counter) { 
+    if (counter || counter === 0) { 
         counter = parseInt(counter, 10);
         setDefaults(counterName, counter);
      }
@@ -57,7 +57,7 @@ function getIdGenerator(prefix, counterName, suffix, padding, counter) {
         prefix = prefix ? prefix : "";
         suffix = suffix ? suffix : "";
         if (!self._id) {
-            if (counter) {
+            if (counter || counter === 0) {
                 getCount(counterName, null, function (err, doc) {
                     let nextNo = padding ? Math.pow(10, padding) + doc.next : doc.next;
                     nextNo = nextNo.toString();
