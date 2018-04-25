@@ -19,7 +19,7 @@ function logToMongo(name) {
                 resStatusCode: res.statusCode,
                 source: req.connection.remoteAddress,
                 completionTime: diff,
-                deleted: false
+                _deleted: false
             });
         });
         next();
