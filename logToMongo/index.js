@@ -8,18 +8,20 @@ function logToMongo(name) {
         res.on('finish', function () {
             let end = new Date();
             let diff = end - start;
+            let headers = req.headers;
+            headers.authorization = "JWT *************************";
             mongoDB.insert({
                 name: name,
                 url: req.originalUrl,
                 method: req.method,
-                reqHeaders: req.headers,
+                reqHeaders: headers,
                 reqBody: req.body,
                 timestamp: start,
                 resHeaders: res.getHeaders(),
                 resStatusCode: res.statusCode,
                 source: req.connection.remoteAddress,
                 completionTime: diff,
-                deleted: false
+                _deleted: false
             });
         });
         next();
