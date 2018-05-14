@@ -8,7 +8,7 @@ function logToMongo(name) {
         res.on('finish', function () {
             let end = new Date();
             let diff = end - start;
-            let headers = req.headers;
+            let headers = JSON.parse(JSON.stringify(req.headers));
             headers.authorization = "JWT *************************";
             mongoDB.insert({
                 name: name,
