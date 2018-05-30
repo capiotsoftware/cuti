@@ -7,5 +7,5 @@ log4js.configure({
     appenders: { out: { type: 'stdout' } },
     categories: { default: { appenders: ['out'], level: 'AUDIT' } }
   });
-log4js.level = process.env.LOG_LEVEL ? process.env.LOG_LEVEL: 'info';
+log4js.level = process.env.LOG_LEVEL ? process.env.LOG_LEVEL: 'debug';
 module.exports.getLogger = log4js;
