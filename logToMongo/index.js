@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 function logToMongo(name) {
-    let mongoDB = mongoose.connection.db.collection('logs');
+    
     return function (req, res, next) {
+        let mongoDB = mongoose.connection.db.collection('logs');
         let start = new Date();
-        
         res.on('finish', function () {
             let end = new Date();
             let diff = end - start;
