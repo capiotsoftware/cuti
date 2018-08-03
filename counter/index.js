@@ -59,6 +59,11 @@ function getIdGenerator(prefix, counterName, suffix, padding, counter) {
         if (!self._id) {
             if (counter || counter === 0) {
                 getCount(counterName, null, function (err, doc) {
+                    if(err){
+                        console.error(err.message);
+                        next(err);
+                        return;
+                    }
                     let nextNo = padding ? Math.pow(10, padding) + doc.next : doc.next;
                     nextNo = nextNo.toString();
                     if (padding && parseInt(nextNo.substr(0, 1)) > 1) {
