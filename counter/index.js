@@ -47,45 +47,59 @@ var getCount = function (sequenceName, expire, callback) {
 };
 
 function getIdGenerator(prefix, counterName, suffix, padding, counter) {
-    if (counter || counter === 0) { 
+    if (counter || counter === 0) {
         counter = parseInt(counter, 10);
         setDefaults(counterName, counter);
-     }
+    }
     return function (next) {
         var self = this;
         var mid = null;
         prefix = prefix ? prefix : "";
         suffix = suffix ? suffix : "";
         if (!self._id) {
-            if (counter || counter === 0) {
-                getCount(counterName, null, function (err, doc) {
-                    if(err){
-                        console.error(err.message);
-                        next(err);
-                        return;
-                    }
-                    let nextNo = padding ? Math.pow(10, padding) + doc.next : doc.next;
-                    nextNo = nextNo.toString();
-                    if (padding && parseInt(nextNo.substr(0, 1)) > 1) {
-                        return next(new Error("length of _id is exceeding counter"));
-                    }
-                    self._id = padding ? prefix + nextNo.substr(1) + suffix : prefix + nextNo + suffix;
+            generateId(prefix, counterName, suffix, padding, counter)
+                .then(id => {
+                    self._id = id;
                     next();
-                });
-            } else if (padding) {
-                self._id = prefix + rand(padding) + suffix;
-                next();
-            } else {
-                getCount(counterName, null, function (err, doc) {
-                    self._id = prefix + doc.next
-                    next();
-                });
-            }
-
+                })
+                .catch(err => {
+                    next(err);
+                })
         } else {
             next();
         }
     };
+}
+
+function generateId(prefix, counterName, suffix, padding, counter) {
+    prefix = prefix ? prefix : "";
+    suffix = suffix ? suffix : "";
+    let id = null;
+    return new Promise((resolve, reject) => {
+        if (counter || counter === 0) {
+            getCount(counterName, null, function (err, doc) {
+                if (err) {
+                    return reject(err);
+                }
+                let nextNo = padding ? Math.pow(10, padding) + doc.next : doc.next;
+                nextNo = nextNo.toString();
+                if (padding && parseInt(nextNo.substr(0, 1)) > 1) {
+                    return reject(new Error("length of _id is exceeding counter"));
+                }
+                id = padding ? prefix + nextNo.substr(1) + suffix : prefix + nextNo + suffix;
+                return resolve(id);
+            });
+        } else if (padding) {
+            id = prefix + rand(padding) + suffix;
+            resolve(id)
+        } else {
+            getCount(counterName, null, function (err, doc) {
+                if (err) return reject(err);
+                id = prefix + doc.next
+                resolve(id);
+            });
+        }
+    })
 }
 
 function rand(_i) {
@@ -135,5 +149,7 @@ function transactionIdGeneratorParallel() {
 module.exports.transactionIdGeneratorParallel = transactionIdGeneratorParallel;
 module.exports.transactionIdGenerator = transactionIdGenerator;
 module.exports.getIdGenerator = getIdGenerator;
+module.exports.generateId = generateId;
 module.exports.getCount = getCount;
 module.exports.setDefaults = setDefaults;
+
