@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 function logToMongo(name) {
-    
+
     return function (req, res, next) {
         let mongoDB = mongoose.connection.db.collection('logs');
         let start = new Date();
@@ -21,7 +21,7 @@ function logToMongo(name) {
                 resStatusCode: res.statusCode,
                 source: req.connection.remoteAddress,
                 completionTime: diff,
-                _deleted: false
+                _metadata: { 'isDeleted': false }
             });
         });
         next();
